@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Gong!",
+  "version": "1.0",
+  "description": "Add a timer to a google meet",
+  "action": {
+    "default_popup": "popup/popup.html"
+  },
+  "content_scripts": [
+    {
+      "js": ["inject_script.js"],
+      "matches": ["https://meet.google.com/*"],
+      "run_at": "document_end"
+    }
+  ],
+  "host_permissions": ["https://meet.google.com/*"],
+  "permissions": ["alarms", "scripting", "storage"]
+}
