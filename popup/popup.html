@@ -9,10 +9,23 @@
 </head>
 
 <body>
+  <div id="countdownWrapper">
+    <div id="countdownInput">
+      <label for="minutes">
+        <input type="number" id="minutes" value="00">
+        <span class="label lbl-min">minutes</span>
+      </label>
+      <span>:</span>
+      <label for="seconds">
+        <input type="number" id="seconds" value="00">
+        <span class="label lbl-sec">seconds</span>
+      </label>
+    </div>
+  </div>
+  <div id="error"></div>
+
   <button id="startButton" style="display: none;">Start</button>
   <button id="stopButton" style="display: none;">Stop</button>
-
-  <div id="countdown"></div>
 </body>
 
 <script src="popup.js"></script>
