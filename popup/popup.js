@@ -1,3 +1,6 @@
+// Meet call url.
+const meetUrl = "https://meet.google.com/*";
+
 // Buttons.
 let startButton = document.getElementById("startButton");
 let stopButton = document.getElementById("stopButton");
@@ -84,6 +87,14 @@ function updateUI(state, endTime) {
   }
 }
 
+// Sends `message` to meet call, iff the current tab is on one.
+async function sendMessageToMeet(countdown) {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tab.url.match(meetUrl)) {
+    await chrome.tabs.sendMessage(tab.id, { countdown });
+  }
+}
+
 // Recieve countdown inputs.
 countdownInputs.forEach((input) => {
   let isInvalid = false;
@@ -141,16 +152,14 @@ startButton.addEventListener("click", async () => {
   let endTime = new Date();
   endTime.setMilliseconds(endTime.getMilliseconds() + countdownInput);
 
+  // Update the countdown, since we support it on every site.
   updateUI(CountdownState.running, endTime);
 
   // Store end time so we know about it if we reopen the popup.
   chrome.storage.session.set({ endTime: endTime.toISOString() });
 
-  // Tell script to execute in `countdownInput`.
-  const tab = await chrome.tabs.query({ active: true, currentWindow: true });
-  await chrome.tabs.sendMessage(tab[0]?.id, {
-    start: countdownInput,
-  });
+  // Tell script to execute in `countdownInput` iff we are on a meet call.
+  await sendMessageToMeet({ start: countdownInput });
 });
 
 // Stop countdown when stop button is clicked.
@@ -158,11 +167,8 @@ stopButton.addEventListener("click", async () => {
   resetCountdown();
   updateUI(CountdownState.notRunning);
 
-  // Tell script to stop execution.
-  const tab = await chrome.tabs.query({ active: true, currentWindow: true });
-  await chrome.tabs.sendMessage(tab[0]?.id, {
-    clear: true,
-  });
+  // Tell script to stop execution iff we are on a meet call.
+  await sendMessageToMeet({ clear: true });
 });
 
 // Retrieve stored end time and update value according to state.

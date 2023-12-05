@@ -28,10 +28,10 @@ function sendReaction() {
 
 let reactionTimeout;
 chrome.runtime.onMessage.addListener((message) => {
-  if (message.start) {
-    setTimeout(sendReaction, message.start);
+  if (message.countdown.start) {
+    setTimeout(sendReaction, message.countdown.start);
   }
-  if (message.clear) {
+  if (message.countdown.clear) {
     clearTimeout(reactionTimeout);
   }
 });
