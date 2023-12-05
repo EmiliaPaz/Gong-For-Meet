@@ -39,7 +39,7 @@ function updateCountdownUI(endTime) {
   // Update countdown every 1s.
   countdownInterval = setInterval(function () {
     // Calculate the remaining time
-    var currentTime = new Date();
+    const currentTime = new Date();
     let remainingTime = endTime - currentTime;
 
     // Stop countdown when time runs up. This can also happen when the popup is
@@ -132,26 +132,28 @@ countdownInputs.forEach((input) => {
 
 // Start countdown when start button is clicked.
 startButton.addEventListener("click", async () => {
-  // TODO: Add textbox so user can select countdown time.
-  let countdownTime = 1; // in minutes
+  const countdownInput = minutes.value * 60000 + seconds.value * 1000;
+  if (countdownInput === 0) {
+    return;
+  }
 
-  // Compute endtime.
+  // Compute end time.
   let endTime = new Date();
-  endTime.setMinutes(endTime.getMinutes() + countdownTime);
+  endTime.setMilliseconds(endTime.getMilliseconds() + countdownInput);
 
   updateUI(CountdownState.running, endTime);
 
   // Store end time so we know about it if we reopen the popup.
   chrome.storage.session.set({ endTime: endTime.toISOString() });
 
-  // Tell script to execute in `countdownTime`.
+  // Tell script to execute in `countdownInput`.
   const tab = await chrome.tabs.query({ active: true, currentWindow: true });
   await chrome.tabs.sendMessage(tab[0]?.id, {
-    start: countdownTime * 60 * 1000,
+    start: countdownInput,
   });
 });
 
-// Stop countdown when stopn button is clicked.
+// Stop countdown when stop button is clicked.
 stopButton.addEventListener("click", async () => {
   resetCountdown();
   updateUI(CountdownState.notRunning);
@@ -169,14 +171,11 @@ chrome.storage.session.get(["endTime"], (result) => {
   const endTime = result && result.endTime ? new Date(result.endTime) : null;
 
   if (endTime === null) {
-    console.log("endtime null");
     updateUI(CountdownState.notRunning);
   } else if (endTime < currentTime) {
-    console.log("endtime smaller than current time");
     resetCountdown();
     updateUI(CountdownState.notRunning);
   } else {
-    console.log("running");
     updateUI(CountdownState.running, endTime);
   }
 });
